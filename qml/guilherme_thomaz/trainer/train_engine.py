@@ -3,10 +3,9 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from models.CQC import CQC
-from loaders.load_cifar10 import load_cifar10_iid
 from evaluation.eval_engine import test_cqc
 
-def handle_cqc_train_call(msg, context):
+def handle_cqc_train_call(msg, context, trainloader, valloader):
 
     n_qubits = context.run_config.get("n-qubits", 4)
     n_layers = context.run_config.get("n-layers", 3)
@@ -17,18 +16,6 @@ def handle_cqc_train_call(msg, context):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
-    # Load the data
-    dataset_name = context.run_config.get("dataset")
-    partition_id = context.node_config["partition-id"]
-    num_partitions = context.node_config["num-partitions"]
-    batch_size = context.run_config["batch-size"]
-    # TODO: Add more datasets here as needed
-    if dataset_name == "cifar10":
-        trainloader, valloader = load_cifar10_iid(partition_id, num_partitions, batch_size)
-    else:
-        raise ValueError(f"Unsupported dataset: {dataset_name}")
-
-    print(f"Client {partition_id}/{num_partitions} starting training...")
     print(f"Training data size: {len(trainloader.dataset)}")
     print(f"Validation data size: {len(valloader.dataset)}")
 

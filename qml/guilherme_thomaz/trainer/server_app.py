@@ -40,6 +40,6 @@ def main(grid: Grid, context: Context) -> None:
     )
 
     # Save final model to disk
-    print("\nSaving final quantum model to disk...", flush=True)
-    state_dict = result.arrays.to_torch_state_dict()
-    torch.save(state_dict, "final_quantum_model.pt")
+    # print("\nSaving final quantum model to disk...", flush=True)
+    # state_dict = result.arrays.to_torch_state_dict()
+    # torch.save(state_dict, "final_quantum_model.pt")

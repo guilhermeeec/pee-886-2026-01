@@ -3,11 +3,10 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from models.CQC import CQC
-from loaders.load_cifar10 import load_cifar10_iid
 from flwr.app import ArrayRecord, MetricRecord
 
 def global_cqc_evaluate(
-    server_round: int, arrays: ArrayRecord, context
+    server_round: int, arrays: ArrayRecord, context, testloader
 ) -> MetricRecord:
     n_qubits = context.run_config.get("n-qubits", 4)
     n_layers = context.run_config.get("n-layers", 3)
@@ -18,15 +17,6 @@ def global_cqc_evaluate(
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
-    # Load centralized test data (using partition 0 as test set)
-    dataset_name = context.run_config.get("dataset")
-    test_batch_size = 128
-    # TODO: Add more datasets here as needed
-    if dataset_name == "cifar10":
-        _, testloader = load_cifar10_iid(partition_id=0, num_partitions=1, batch_size=test_batch_size)
-    else:
-        raise ValueError(f"Unsupported dataset: {dataset_name}")
-
     # Evaluate the global model on the test set
     test_loss, test_accuracy = test_cqc(model, testloader, device)
 
@@ -34,7 +24,7 @@ def global_cqc_evaluate(
     return MetricRecord({"accuracy": test_accuracy, "loss": test_loss})
 
 
-def handle_cqc_evaluate_call(msg, context):
+def handle_cqc_evaluate_call(msg, context, valloader):
 
     # Read quantum parameters from configuration
     n_qubits = context.run_config.get("n-qubits", 4)
@@ -45,17 +35,6 @@ def handle_cqc_evaluate_call(msg, context):
     model.load_state_dict(msg.content["arrays"].to_torch_state_dict())
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
-
-    # Load the data
-    dataset_name = context.run_config.get("dataset")
-    partition_id = context.node_config["partition-id"]
-    num_partitions = context.node_config["num-partitions"]
-    batch_size = context.run_config["batch-size"]
-    # TODO: Add more datasets here as needed
-    if dataset_name == "cifar10":
-        _, valloader = load_cifar10_iid(partition_id, num_partitions, batch_size)
-    else:
-        raise ValueError(f"Unsupported dataset: {dataset_name}")
 
     # Call the evaluation function
     eval_loss, eval_accuracy = test_cqc(model, valloader, device)

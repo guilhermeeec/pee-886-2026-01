@@ -1,3 +1,5 @@
+2 clients
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -42,3 +44,16 @@ model = "CQC"
 
 # Dataset
 dataset = "cifar10"
+
+INFO :          ServerApp-side Evaluate Metrics:
+INFO :          { 0: {'accuracy': '9.4400e-02', 'loss': '2.3780e+00'},
+INFO :            1: {'accuracy': '2.0090e-01', 'loss': '2.0455e+00'},
+INFO :            2: {'accuracy': '4.1180e-01', 'loss': '1.5805e+00'},
+INFO :            3: {'accuracy': '4.9110e-01', 'loss': '1.3932e+00'},
+INFO :            4: {'accuracy': '5.3310e-01', 'loss': '1.3023e+00'},
+INFO :            5: {'accuracy': '5.5080e-01', 'loss': '1.2398e+00'},
+INFO :            6: {'accuracy': '5.6800e-01', 'loss': '1.1910e+00'},
+INFO :            7: {'accuracy': '5.8120e-01', 'loss': '1.1675e+00'},
+INFO :            8: {'accuracy': '5.9170e-01', 'loss': '1.1192e+00'},
+INFO :            9: {'accuracy': '6.0410e-01', 'loss': '1.0857e+00'},
+INFO :            10: {'accuracy': '6.1860e-01', 'loss': '1.0592e+00'}}

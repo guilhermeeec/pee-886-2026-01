@@ -2,6 +2,8 @@
 
 ## Technology and Architecture
 
+![alt text](QML.png)
+
 Frameworks:
 
 * Flower
