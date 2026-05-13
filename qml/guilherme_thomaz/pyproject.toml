@@ -31,7 +31,7 @@ clientapp = "trainer.client_app:app"
 num-server-rounds = 10
 batch-size = 32
 local-epochs = 2
-learning-rate = 0.001
+learning-rate = 0.01
 fraction-fit = 1.0
 fraction-evaluate = 0.5
 
@@ -39,3 +39,6 @@ fraction-evaluate = 0.5
 n-qubits = 4
 n-layers = 3
 model = "CQC"
+
+# Dataset
+dataset = "cifar10"

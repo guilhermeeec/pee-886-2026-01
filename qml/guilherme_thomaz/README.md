@@ -17,7 +17,9 @@ Libraries:
 * torchvision
 * pennylane
 
-Dataset
+Models 
+
+Datasets
 
 * CIFAR-10
 

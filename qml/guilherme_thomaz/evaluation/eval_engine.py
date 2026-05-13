@@ -19,7 +19,13 @@ def global_cqc_evaluate(
     model.to(device)
 
     # Load centralized test data (using partition 0 as test set)
-    _, testloader = load_cifar10_iid(partition_id=0, num_partitions=1, batch_size=128)
+    dataset_name = context.run_config.get("dataset")
+    test_batch_size = 128
+    # TODO: Add more datasets here as needed
+    if dataset_name == "cifar10":
+        _, testloader = load_cifar10_iid(partition_id=0, num_partitions=1, batch_size=test_batch_size)
+    else:
+        raise ValueError(f"Unsupported dataset: {dataset_name}")
 
     # Evaluate the global model on the test set
     test_loss, test_accuracy = test_cqc(model, testloader, device)
@@ -41,10 +47,15 @@ def handle_cqc_evaluate_call(msg, context):
     model.to(device)
 
     # Load the data
+    dataset_name = context.run_config.get("dataset")
     partition_id = context.node_config["partition-id"]
     num_partitions = context.node_config["num-partitions"]
     batch_size = context.run_config["batch-size"]
-    _, valloader = load_cifar10_iid(partition_id, num_partitions, batch_size)
+    # TODO: Add more datasets here as needed
+    if dataset_name == "cifar10":
+        _, valloader = load_cifar10_iid(partition_id, num_partitions, batch_size)
+    else:
+        raise ValueError(f"Unsupported dataset: {dataset_name}")
 
     # Call the evaluation function
     eval_loss, eval_accuracy = test_cqc(model, valloader, device)
@@ -84,6 +95,6 @@ def test_cqc(
             correct += (predicted == target).sum().item()
 
     test_loss /= len(testloader)
-    accuracy = 100.0 * correct / total
+    accuracy = correct / total
 
     return test_loss, accuracy

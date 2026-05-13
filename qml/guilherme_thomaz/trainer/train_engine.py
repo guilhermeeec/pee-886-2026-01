@@ -18,10 +18,15 @@ def handle_cqc_train_call(msg, context):
     model.to(device)
 
     # Load the data
+    dataset_name = context.run_config.get("dataset")
     partition_id = context.node_config["partition-id"]
     num_partitions = context.node_config["num-partitions"]
     batch_size = context.run_config["batch-size"]
-    trainloader, valloader = load_cifar10_iid(partition_id, num_partitions, batch_size)
+    # TODO: Add more datasets here as needed
+    if dataset_name == "cifar10":
+        trainloader, valloader = load_cifar10_iid(partition_id, num_partitions, batch_size)
+    else:
+        raise ValueError(f"Unsupported dataset: {dataset_name}")
 
     print(f"Client {partition_id}/{num_partitions} starting training...")
     print(f"Training data size: {len(trainloader.dataset)}")
