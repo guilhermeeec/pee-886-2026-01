@@ -21,11 +21,16 @@ Libraries:
 
 Models 
 
+* QCQ
+* Binary QCNN
+
 Datasets
 
 * CIFAR-10
 
 For a first experiment, go into `scripts/guilherme_thomaz` from the repository root and run `bash get_repo_example.sh`
+
+Tip for getting Flower port: `sudo ss -tulnp | grep flwr`
 
 ## Usage Instructions
 

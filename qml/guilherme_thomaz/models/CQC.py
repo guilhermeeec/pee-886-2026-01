@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from flwr.app import ArrayRecord
 
-def create_quantum_circuit(n_qubits: int):
+def create_cqc_quantum_circuit(n_qubits: int):
     dev = qml.device("default.qubit", wires=n_qubits)
 
     @qml.qnode(dev, interface="torch")
@@ -35,7 +35,7 @@ class CQC(nn.Module):
         self.fc3 = nn.Linear(84, n_qubits)
 
         # Create quantum circuit and layer
-        quantum_circuit = create_quantum_circuit(n_qubits)
+        quantum_circuit = create_cqc_quantum_circuit(n_qubits)
         weight_shapes = {"weights": (n_layers, n_qubits)}
         self.qnn = qml.qnn.TorchLayer(quantum_circuit, weight_shapes)
 
