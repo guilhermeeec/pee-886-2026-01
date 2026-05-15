@@ -125,15 +125,18 @@ def test_binqcnn(
     with torch.no_grad():
         for batch_idx, batch in enumerate(testloader):
             data = batch["img"].to(device)
-            target = torch.as_tensor(batch["label"], dtype=torch.double, device=device)
-            output = net(data)
 
+            target = torch.as_tensor(batch["label"], dtype=torch.double, device=device)
+            total += target.size(0)
+
+            output = net(data)
             test_loss += criterion(output, target).item()
 
-            predicted = torch.max(output.data)
-            total += target.size(0)
+            # One-hot predicted from output
+            predicted = (torch.sigmoid(output) > 0.5).double()            
             correct += (predicted == target).sum().item()
-            print(f"Test Batch {batch_idx+1}/{len(testloader)}", flush=True)
+
+            print(f"Test Batch {batch_idx+1}/{len(testloader)} Predicted: {predicted.tolist()} Target: {target.tolist()}", flush=True)
             
     test_loss /= len(testloader)
     accuracy = correct / total

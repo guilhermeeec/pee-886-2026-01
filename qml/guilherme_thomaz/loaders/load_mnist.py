@@ -15,10 +15,10 @@ def get_mnist(
         partitioners={"train": partitioner},
     )
     partition = fds.load_partition(partition_id)
-    # Divide data on each node: 80% train, 20% validation
+    
+    partition = partition.filter(lambda example: example["label"] in [0, 1])
+    
     partition_train_test = partition.train_test_split(test_size=0.2, seed=42)
-
-    # Padroniza o nome da coluna para evitar o erro de chave no apply_transforms
     partition_train_test = partition_train_test.rename_column("image", "img")
 
     transform = v2.Compose([
@@ -32,6 +32,7 @@ def get_mnist(
         """Apply transforms to the partition from FederatedDataset."""
         batch["img"] = torch.stack([transform(img) for img in batch["img"]])
         return batch
+        
     partition_train_test = partition_train_test.with_transform(apply_transforms)
     
     train_full = partition_train_test["train"]
@@ -50,4 +51,5 @@ def get_mnist(
     valloader = DataLoader(
         test_full, batch_size=batch_size, num_workers=0
     )  # validation split
+    
     return trainloader, valloader
