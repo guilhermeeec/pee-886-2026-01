@@ -32,15 +32,22 @@ def get_mnist(
         """Apply transforms to the partition from FederatedDataset."""
         batch["img"] = torch.stack([transform(img) for img in batch["img"]])
         return batch
-
     partition_train_test = partition_train_test.with_transform(apply_transforms)
+    
+    train_full = partition_train_test["train"]
+    test_full = partition_train_test["test"]
+
+    # Select 2048 examples for training and 512 for validation (or less if the partition is smaller)
+    train_full = train_full.shuffle(seed=42).select(range(min(2048, len(train_full))))
+    test_full = test_full.shuffle(seed=42).select(range(min(512, len(test_full))))
+
     trainloader = DataLoader(
-        partition_train_test["train"],
+        train_full,
         batch_size=batch_size,
         shuffle=True,
         num_workers=0,
     )
     valloader = DataLoader(
-        partition_train_test["test"], batch_size=batch_size, num_workers=0
+        test_full, batch_size=batch_size, num_workers=0
     )  # validation split
     return trainloader, valloader

@@ -53,15 +53,14 @@ def create_binqcnn_quantum_circuit():
 class BinaryQCNN(nn.Module):
     def __init__(self):
         super().__init__()
-        # 7 é o número de parametros da rede (4 da primeira, 2 da segunda e 1 da terceira)
-        conv_weights = nn.Parameter(0.1 * torch.randn(7, 2))
-        pool_weights = nn.Parameter(0.1 * torch.randn(7, 2))
-        self.weights = torch.stack((conv_weights, pool_weights), dim=0)
+        # Registra um único parâmetro com formato [2, 7, 2]
+        # Índice 0 = conv_weights | Índice 1 = pool_weights
+        self.weights = nn.Parameter(0.1 * torch.randn(2, 7, 2))
         self.circuit = create_binqcnn_quantum_circuit()
 
     def forward(self, x):
-        q_out = self.circuit(x, self.conv_weights, self.pool_weights)
-        return q_out.view(-1, 1).float()
+        q_out = self.circuit(x, self.weights)
+        return q_out.double()
     
 def get_initial_binqcnn_array(context):
     global_model = BinaryQCNN()

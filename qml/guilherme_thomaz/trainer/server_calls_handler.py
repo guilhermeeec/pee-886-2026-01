@@ -20,7 +20,7 @@ def make_global_evaluate(context):
 
     # Load centralized test data (using partition 0 as test set)
     dataset_name = context.run_config.get("dataset")
-    test_batch_size = 128
+    test_batch_size = 16
     # TODO: Add more datasets here as needed
     if dataset_name == "cifar10":
         _, testloader = load_cifar10_iid(partition_id=0, num_partitions=1, batch_size=test_batch_size)

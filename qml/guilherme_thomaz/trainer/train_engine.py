@@ -37,7 +37,7 @@ def handle_binqcnn_train_call(msg, context, trainloader, valloader):
     # Load the model and initialize it with the received weights
     model = BinaryQCNN()
     model.load_state_dict(msg.content["arrays"].to_torch_state_dict())
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
     print(f"Training data size: {len(trainloader.dataset)}")
@@ -105,6 +105,7 @@ def train_binqcnn(
 ) -> Dict[str, float]:
     
     net.to(device)
+    net.train()
     optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
     loss_fn = nn.BCEWithLogitsLoss()
     
@@ -112,7 +113,7 @@ def train_binqcnn(
     for epoch in range(epochs): 
         for batch_idx, batch in enumerate(trainloader):
             data = batch["img"].to(device)
-            target = torch.as_tensor(batch["label"], dtype=torch.long, device=device)
+            target = torch.as_tensor(batch["label"], dtype=torch.double, device=device)
             
             optimizer.zero_grad()
             out = net(data)
@@ -123,7 +124,8 @@ def train_binqcnn(
             
             running_loss += loss.item()
             #preds = torch.round(torch.sigmoid(out))
-        
+            print(f"Epoch {epoch+1}/{epochs}, Batch {batch_idx+1}/{len(trainloader)}, Loss: {loss.item():.4f}", flush=True)
+
     # Evaluate on validation set
     val_loss, val_accuracy = test_binqcnn(net, valloader, device)
 

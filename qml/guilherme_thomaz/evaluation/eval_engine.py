@@ -66,7 +66,7 @@ def handle_cqc_evaluate_call(msg, context, valloader):
 
 def handle_binqcnn_evaluate_call(msg, context, valloader):
 
-    model = BinaryQCNN
+    model = BinaryQCNN()
     model.load_state_dict(msg.content["arrays"].to_torch_state_dict())
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
@@ -123,16 +123,17 @@ def test_binqcnn(
     total = 0
     
     with torch.no_grad():
-        for batch in testloader:
+        for batch_idx, batch in enumerate(testloader):
             data = batch["img"].to(device)
-            target = torch.as_tensor(batch["label"], dtype=torch.long, device=device)
+            target = torch.as_tensor(batch["label"], dtype=torch.double, device=device)
             output = net(data)
 
             test_loss += criterion(output, target).item()
 
-            _, predicted = torch.max(output.data, 1)
+            predicted = torch.max(output.data)
             total += target.size(0)
             correct += (predicted == target).sum().item()
+            print(f"Test Batch {batch_idx+1}/{len(testloader)}", flush=True)
             
     test_loss /= len(testloader)
     accuracy = correct / total
