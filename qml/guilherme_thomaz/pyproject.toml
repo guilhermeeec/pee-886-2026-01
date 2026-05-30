@@ -28,15 +28,15 @@ serverapp = "trainer.server_app:app"
 clientapp = "trainer.client_app:app"
 
 [tool.flwr.app.config]
-num-server-rounds = 10
+num-server-rounds = 30
 batch-size = 16
-local-epochs = 4
-learning-rate = 0.01
+local-epochs = 1
+learning-rate = 0.0005
 fraction-fit = 1.0
 fraction-evaluate = 1
 
 # Quantum circuit configuration
-model = "BinaryQCNN"
+model = "CQC"
 
 # Dataset
-dataset = "mnist"
+dataset = "cifar10"

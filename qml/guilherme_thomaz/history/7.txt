@@ -43,14 +43,14 @@ model = "BinaryQCNN"
 dataset = "mnist"
 
 INFO :          ServerApp-side Evaluate Metrics:
-INFO :          { 0: {'accuracy': '3.7891e-01', 'loss': '7.0240e-01'},
-INFO :            1: {'accuracy': '9.9414e-01', 'loss': '4.5504e-01'},
-INFO :            2: {'accuracy': '9.9023e-01', 'loss': '4.5319e-01'},
-INFO :            3: {'accuracy': '9.9023e-01', 'loss': '4.5283e-01'},
-INFO :            4: {'accuracy': '9.9023e-01', 'loss': '4.5300e-01'},
-INFO :            5: {'accuracy': '9.9023e-01', 'loss': '4.5279e-01'},
-INFO :            6: {'accuracy': '9.9023e-01', 'loss': '4.5283e-01'},
-INFO :            7: {'accuracy': '9.9023e-01', 'loss': '4.5269e-01'},
-INFO :            8: {'accuracy': '9.9219e-01', 'loss': '4.5264e-01'},
-INFO :            9: {'accuracy': '9.9219e-01', 'loss': '4.5250e-01'},
-INFO :            10: {'accuracy': '9.9219e-01', 'loss': '4.5225e-01'}}
+INFO :          { 0: {'accuracy': '4.1406e-01', 'loss': '7.1286e-01'},
+INFO :            1: {'accuracy': '6.2891e-01', 'loss': '6.7240e-01'},
+INFO :            2: {'accuracy': '9.8828e-01', 'loss': '5.8038e-01'},
+INFO :            3: {'accuracy': '1.0000e+00', 'loss': '5.0685e-01'},
+INFO :            4: {'accuracy': '1.0000e+00', 'loss': '4.6448e-01'},
+INFO :            5: {'accuracy': '9.9609e-01', 'loss': '4.5500e-01'},
+INFO :            6: {'accuracy': '9.9609e-01', 'loss': '4.5450e-01'},
+INFO :            7: {'accuracy': '9.9609e-01', 'loss': '4.5449e-01'},
+INFO :            8: {'accuracy': '9.9609e-01', 'loss': '4.5436e-01'},
+INFO :            9: {'accuracy': '9.9609e-01', 'loss': '4.5450e-01'},
+INFO :            10: {'accuracy': '9.9609e-01', 'loss': '4.5440e-01'}}

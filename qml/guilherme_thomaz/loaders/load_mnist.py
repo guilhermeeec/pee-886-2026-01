@@ -38,9 +38,9 @@ def get_mnist(
     train_full = partition_train_test["train"]
     test_full = partition_train_test["test"]
 
-    # Select 2048 examples for training and 512 for validation (or less if the partition is smaller)
-    train_full = train_full.shuffle(seed=42).select(range(min(2048, len(train_full))))
-    test_full = test_full.shuffle(seed=42).select(range(min(512, len(test_full))))
+    # Select 512 examples for training and 256 for validation (or less if the partition is smaller)
+    train_full = train_full.shuffle(seed=42).select(range(min(512, len(train_full))))
+    test_full = test_full.shuffle(seed=42).select(range(min(256, len(test_full))))
 
     trainloader = DataLoader(
         train_full,

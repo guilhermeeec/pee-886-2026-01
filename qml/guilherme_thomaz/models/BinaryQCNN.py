@@ -6,6 +6,15 @@ from torchvision import datasets
 from torchvision.transforms import v2
 from torch.utils.data import DataLoader
 from flwr.app import ArrayRecord
+from matplotlib import pyplot as plt
+
+def print_circuit(circuit, name):
+    inputs = torch.randn(256)
+    weights = nn.Parameter(0.1 * torch.randn(2, 7, 2))
+    #print(qml.draw(circuit)(inputs, conv_weights, pool_weights))
+    fig, ax = qml.draw_mpl(circuit)(inputs, weights)
+    plt.savefig(f"{name}.png")
+    print(f"Circuit diagram saved to {name}.png")
 
 def create_binqcnn_quantum_circuit():
     n_qubits = 8
@@ -57,6 +66,7 @@ class BinaryQCNN(nn.Module):
         # Índice 0 = conv_weights | Índice 1 = pool_weights
         self.weights = nn.Parameter(0.1 * torch.randn(2, 7, 2))
         self.circuit = create_binqcnn_quantum_circuit()
+        print_circuit(self.circuit, "binqcnn_circuit")
 
     def forward(self, x):
         q_out = self.circuit(x, self.weights)

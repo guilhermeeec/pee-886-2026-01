@@ -2,8 +2,6 @@
 
 ## Technology and Architecture
 
-![alt text](QML.png)
-
 Frameworks:
 
 * Flower
@@ -21,12 +19,13 @@ Libraries:
 
 Models 
 
-* QCQ
-* Binary QCNN
+* Hybird-QCQ CNN for complete CIFAR
+* Binary Completelly Quantum CNN for reduced MNIST
 
 Datasets
 
 * CIFAR-10
+* Reduced Binary MNIST
 
 For a first experiment, go into `scripts/guilherme_thomaz` from the repository root and run `bash get_repo_example.sh`
 
