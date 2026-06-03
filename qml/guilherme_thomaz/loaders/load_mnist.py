@@ -39,7 +39,7 @@ def get_mnist(
     test_full = partition_train_test["test"]
 
     # Select 512 examples for training and 256 for validation (or less if the partition is smaller)
-    train_full = train_full.shuffle(seed=42).select(range(min(512, len(train_full))))
+    train_full = train_full.shuffle(seed=42).select(range(min(256, len(train_full))))
     test_full = test_full.shuffle(seed=42).select(range(min(256, len(test_full))))
 
     trainloader = DataLoader(

@@ -1,105 +1,106 @@
+import os
 import re
-
+import glob
+import numpy as np
+import scipy.stats as stats
 from matplotlib import rc_file
 from matplotlib import pyplot as plt
-rc_file('~/guiaraujo_medium.mplstyle')
 
-def parse_arquivo_treinamento(caminho_arquivo):
-    """
-    Lê o arquivo e extrai o número de clientes, as épocas locais 
-    e a lista de métricas de acurácia.
-    """
-    with open(caminho_arquivo, 'r', encoding='utf-8') as f:
-        conteudo = f.read()
-        
-    # 1. Número de clientes: Procura por um número seguido da palavra "clients"
-    match_clients = re.search(r'(\d+)\s+clients', conteudo, re.IGNORECASE)
-    num_clientes = int(match_clients.group(1)) if match_clients else None
-    
-    # 2. Número de épocas locais (local-epochs): Procura pelo padrão "local-epochs = [número]"
-    match_epochs = re.search(r'local-epochs\s*=\s*(\d+)', conteudo)
-    local_epochs = int(match_epochs.group(1)) if match_epochs else None
-    
-    # 3. Lista de acurácias: Procura todos os valores associados à chave 'accuracy'
-    # O padrão busca "'accuracy': 'valor'" e extrai apenas o valor.
-    matches_accuracy = re.findall(r"'accuracy':\s*'([^']+)'", conteudo)
-    
-    # Converte os valores extraídos (em notação científica) para ponto flutuante (float)
-    lista_acuracia = [float(valor) for valor in matches_accuracy]
-    
-    # Monta e retorna o dicionário com os resultados
-    return {
-        'num_clientes': num_clientes,
-        'local_epochs': local_epochs,
-        'accuracy_list': lista_acuracia
-    }
+# Mantendo sua configuração de estilo
+rc_file('~/guiaraujo_medium.mplstyle') 
+# (Descomente a linha acima caso o arquivo de estilo esteja acessível no ambiente em que for rodar)
 
-def plotar_grafico_acuracia(lista_dicionarios, titulo, nome_arquivo):
-    """
-    Recebe uma lista de dicionários contendo os dados de treinamento,
-    gera um gráfico de Acurácia (%) vs Rodada global com múltiplas curvas 
-    e salva em um arquivo.
+def get_acc_from_file_path(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    matches_accuracy = re.findall(r"'accuracy':\s*'([^']+)'", content)
+    return [float(valor) for valor in matches_accuracy]
+
+def get_info_from_file_path(path):
+    # Get file name from path de forma agnóstica ao sistema operacional
+    file_name = os.path.basename(path)
+
+    # Example file name 1: mnist_4cli_2.log (run 2)
+    # Default num of local epochs is 2 if not specified in the file name
+    file_name_parts = file_name.split('_')
+    if len(file_name_parts) == 3:        
+        num_clients = int(file_name_parts[1].replace('cli', ''))
+        local_epochs = 2
+        return num_clients, local_epochs
     
-    Argumentos:
-    - lista_dicionarios: lista de dicts gerados pela função de parsing.
-    - titulo: string com o título do gráfico.
-    - nome_arquivo: string com o nome do arquivo de imagem onde será salvo (ex: 'grafico.png').
-    """
-    # Cria uma nova figura
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Example file name: mnist_4cli_4epoch_2.log (run 2)
+    else:
+        num_clients = int(file_name_parts[1].replace('cli', ''))
+        local_epochs = int(file_name_parts[2].replace('epoch', ''))
+        return num_clients, local_epochs
+
+def plot_federated_learning_results(directory_path='.'):
+    # Busca apenas arquivos que iniciam com "mnist" e terminam com ".log"
+    search_pattern = os.path.join(directory_path, 'mnist*.log')
+    log_files = glob.glob(search_pattern)
     
-    # Itera sobre cada dicionário na lista para criar as curvas
-    for dados in lista_dicionarios:
-        clientes = dados.get('num_clientes', 'N/A')
-        epocas = dados.get('local_epochs', 'N/A')
-        acuracias = dados.get('accuracy_list', [])
+    # Dicionário para agrupar os resultados por cenário
+    # Chave: (num_clients, local_epochs) -> Valor: lista de listas de acurácia
+    scenarios = {}
+    
+    for path in log_files:
+        # Pula diretórios caso existam com esse padrão
+        if not os.path.isfile(path):
+            continue
+            
+        num_clients, local_epochs = get_info_from_file_path(path)
+        accuracies = get_acc_from_file_path(path)
         
-        # Converte as acurácias para porcentagem
-        acuracias_pct = [acc * 100 for acc in acuracias]
+        scenario_key = (num_clients, local_epochs)
         
-        # O eixo x (Rodada global) pode ser o próprio índice da lista (0, 1, 2, ...)
-        rodadas = list(range(len(acuracias)))
+        if scenario_key not in scenarios:
+            scenarios[scenario_key] = []
+        scenarios[scenario_key].append(accuracies)
         
-        # Define o texto da legenda para esta curva específica
-        label_curva = f"{clientes} clientes, {epocas} épocas"
+    plt.figure(figsize=(8, 6))
+    
+    # Processa e plota cada cenário
+    for (clientes, epocas), lista_acuracias in scenarios.items():
+        # Converte para array numpy. 
+        # Garantindo que todas as execuções tenham o mesmo tamanho (truncando pela menor, caso haja diferença nas rodadas)
+        min_rounds = min(len(acc) for acc in lista_acuracias)
+        acc_matrix = np.array([acc[:min_rounds] for acc in lista_acuracias])
         
-        # Adiciona a curva no gráfico
-        ax.plot(rodadas, acuracias_pct, marker='o', label=label_curva)
+        # Eixo x (Rodadas Globais), começando de 1
+        x_rounds = np.arange(1, min_rounds + 1)
         
-    # Configurações de exibição do gráfico
-    ax.set_title(titulo)
-    ax.set_xlabel("Rodada global")
-    ax.set_ylabel("Acurácia (%)")
+        # Média e desvio padrão amostral (ddof=1) no eixo 0 (ao longo das 5 execuções)
+        mean_acc = np.mean(acc_matrix, axis=0)
+        std_acc = np.std(acc_matrix, axis=0, ddof=1)
+        
+        n_execucoes = acc_matrix.shape[0]
+        
+        # Cálculo do Intervalo de Confiança de 50% usando t-Student
+        confidence_level = 0.95
+        # Graus de liberdade
+        df = n_execucoes - 1 
+        # Valor crítico t
+        t_critical = stats.t.ppf((1 + confidence_level) / 2, df) 
+        # Margem de erro
+        margin_of_error = t_critical * (std_acc / np.sqrt(n_execucoes))
+        
+        label_name = f"{clientes} Clientes, {epocas} Épocas Locais"
+        
+        # Plot do gráfico de linhas com as barras de erro
+        plt.errorbar(x_rounds, mean_acc, yerr=margin_of_error, label=label_name, 
+                     marker='o')
+
+    # Configurações do gráfico
+    plt.xlabel('Rodadas Globais')
+    plt.ylabel('Acurácia Média')
+    plt.legend(loc='lower right')
+    #plt.grid(True, linestyle='--', alpha=0.7)
     
-    # Adiciona a grade para facilitar a leitura
-    ax.grid(True, linestyle='--', alpha=0.7)
-    
-    # Insere a legenda
-    ax.legend()
-    
-    # Salva o gráfico no arquivo especificado e ajusta as margens
-    plt.savefig(nome_arquivo, bbox_inches='tight')
-    
-    # Fecha a figura para liberar memória
-    plt.close(fig)
+    # Sem título conforme solicitado
+    plt.tight_layout()
+    plt.savefig('mnist.png', dpi=300, bbox_inches='tight')
 
 if __name__ == "__main__":
-    resultados = []
-    for i in range(1, 5):
-        caminho_arquivo = f'{i}.txt'
-        resultado = parse_arquivo_treinamento(caminho_arquivo)
-        print(f"Resultados para {caminho_arquivo}:")
-        print(resultado)
-        resultados.append(resultado)
-        print("\n")
-    plotar_grafico_acuracia(resultados, "QCNN CQC com CIFAR10", "q cnn_cqc_com_cifar10.png")
-
-    resultados = []
-    for i in range(5, 9):
-        caminho_arquivo = f'{i}.txt'
-        resultado = parse_arquivo_treinamento(caminho_arquivo)
-        print(f"Resultados para {caminho_arquivo}:")
-        print(resultado)
-        resultados.append(resultado)
-        print("\n")
-    plotar_grafico_acuracia(resultados, "QCNN pura com MNIST binário", "binqcnn.png")
+    # Substitua '.' pelo caminho do seu diretório caso os logs não estejam na mesma pasta do script
+    diretorio_dos_logs = '.' 
+    plot_federated_learning_results(diretorio_dos_logs)

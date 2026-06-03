@@ -1,4 +1,3 @@
-2 clients
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -29,7 +28,7 @@ serverapp = "trainer.server_app:app"
 clientapp = "trainer.client_app:app"
 
 [tool.flwr.app.config]
-num-server-rounds = 10
+num-server-rounds = 5
 batch-size = 16
 local-epochs = 2
 learning-rate = 0.01
@@ -41,16 +40,3 @@ model = "BinaryQCNN"
 
 # Dataset
 dataset = "mnist"
-
-ServerApp-side Evaluate Metrics:
-INFO :          { 0: {'accuracy': '3.7500e-01', 'loss': '7.1089e-01'},
-INFO :            1: {'accuracy': '7.6953e-01', 'loss': '6.5915e-01'},
-INFO :            2: {'accuracy': '9.3359e-01', 'loss': '5.8218e-01'},
-INFO :            3: {'accuracy': '9.8828e-01', 'loss': '5.4026e-01'},
-INFO :            4: {'accuracy': '9.7656e-01', 'loss': '5.1114e-01'},
-INFO :            5: {'accuracy': '9.9219e-01', 'loss': '4.8111e-01'},
-INFO :            6: {'accuracy': '9.9219e-01', 'loss': '4.6399e-01'},
-INFO :            7: {'accuracy': '9.8828e-01', 'loss': '4.5959e-01'},
-INFO :            8: {'accuracy': '9.8828e-01', 'loss': '4.5702e-01'},
-INFO :            9: {'accuracy': '9.8438e-01', 'loss': '4.5624e-01'},
-INFO :            10: {'accuracy': '9.8438e-01', 'loss': '4.5594e-01'}}

@@ -57,6 +57,13 @@ FLWR_LOG_LEVEL=DEBUG flwr run . --stream --federation-config num-supernodes=2
 
 If you had any issues, go into `scripts/guilherme_thomaz` from the repository root and run `bash cleanup.sh`
 
+## Experiments in sequence
+
+```
+tsp sh -c "flwr run . --federation-config num-supernodes=4 > run_1.log 2>&1"
+tsp sh -c "flwr run . --federation-config num-supernodes=2 > run_1.log 2>&1"
+```
+
 ## Reference
 
 [Tutorial on Quantum Federated Learning with PennyLane and Flower](https://flower.ai/docs/examples/quickstart-pennylane.html)
